@@ -146,7 +146,7 @@ qplot(Platform, Global_Sales, data=sales_data3, geom='boxplot')
 ###############################################################################
 
 
-# Week 5 assignment: Cleaning and maniulating data using R
+# Week 5 assignment: Cleaning and manipulating data using R
 
 ## Utilising R, you will explore, prepare and explain the normality of the data
 ## set based on plots, Skewness, Kurtosis, and a Shapiro-Wilk test. Note that
@@ -184,13 +184,13 @@ qplot(Platform, Global_Sales, data=sales_data3, geom='boxplot')
 # 1. Load and explore the data
 
 # View data frame created in Week 4.
-
+View(sales_data3)
 
 # Check output: Determine the min, max, and mean values.
 
 
 # View the descriptive statistics.
-
+summary(sales_data3)
 
 ###############################################################################
 
@@ -198,14 +198,28 @@ qplot(Platform, Global_Sales, data=sales_data3, geom='boxplot')
 
 ## 2a) Use the group_by and aggregate functions.
 # Group data based on Product and determine the sum per Product.
+aggregate(Global_Sales~Product+Platform, sales_data3, sum)
 
+df_sales_platform <- sales_data3 %>% group_by(Product, Platform) %>%
+  summarise(sum_eu_sales=sum(EU_Sales),
+            sum_na_sales=sum(NA_Sales),
+            sum_global_sales=sum(Global_Sales),
+            .groups='drop')
+
+df_sales <- sales_data3 %>% group_by(Product) %>%
+  summarise(sum_eu_sales=sum(EU_Sales),
+            sum_na_sales=sum(NA_Sales),
+            sum_global_sales=sum(Global_Sales),
+            .groups='drop')
 
 # View the data frame.
-
+View(df_sales_platform)
+View(df_sales)
 
 # Explore the data frame.
-
-
+dim(df_sales)
+head(df_sales)
+as_tibble(df_sales)
 
 ## 2b) Determine which plot is the best to compare game sales.
 # Create scatterplots.
@@ -224,24 +238,52 @@ qplot(Platform, Global_Sales, data=sales_data3, geom='boxplot')
 
 ## 3a) Create Q-Q Plots
 # Create Q-Q Plots.
+qqnorm(sales_data3$Global_Sales,
+       col='blue',
+       xlab="z Value",
+       ylab='Sales (per Million $)')
 
+qqline(sales_data3$Global_Sales,
+       col='red',
+       lwd=2) 
 
+qqnorm(sales_data3$NA_Sales,
+       col='blue',
+       xlab="z Value",
+       ylab='Sales (per Million $)')
+       
+qqline(sales_data3$NA_Sales,
+        col='red',
+        lwd=2) 
+
+qqnorm(sales_data3$EU_Sales,
+        col='blue',
+        xlab="z Value",
+        ylab='Sales (per Million $)')
+              
+qqline(sales_data3$EU_Sales,
+        col='red',
+        lwd=2) 
 
 ## 3b) Perform Shapiro-Wilk test
 # Install and import Moments.
-
+library (moments)
 
 # Perform Shapiro-Wilk test.
-
+shapiro.test(sales_data3$Global_Sales)
 
 
 ## 3c) Determine Skewness and Kurtosis
 # Skewness and Kurtosis.
-
+skewness(sales_data3$Global_Sales) 
+kurtosis(sales_data3$Global_Sales)
 
 
 ## 3d) Determine correlation
 # Determine correlation.
+cor(sales_data3$Global_Sales, sales_data3$NA_Sales)
+cor(sales_data3$Global_Sales, sales_data3$EU_Sales)
+cor(sales_data3$EU_Sales, sales_data3$NA_Sales)
 
 
 ###############################################################################
@@ -250,6 +292,23 @@ qplot(Platform, Global_Sales, data=sales_data3, geom='boxplot')
 # Create plots to gain insights into data.
 # Choose the type of plot you think best suits the data set and what you want 
 # to investigate. Explain your answer in your report.
+
+ggplot(sales_data3, aes(x=Platform)) + 
+  geom_bar()
+
+ggplot(sales_data3, aes(x = Platform, y = Global_Sales)) +
+  # Specify the geom_violin function and fill.
+  geom_violin(fill = 'blue') +  
+  # Specify the geom_boxplot.
+  geom_boxplot(fill = 'orange', width = 0.25,
+               outlier.color = 'green', outlier.size = 1,
+               outlier.shape = 'square') +
+  labs(title = "Global Sales by Platform",
+       x = "Platform",
+       y = "Global Sales (per Million $)")
+
+
+
 
 
 ###############################################################################
